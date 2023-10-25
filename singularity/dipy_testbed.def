@@ -1,0 +1,11 @@
+Bootstrap: docker
+From: python:3.10
+
+%files
+        p2s_parallel.py /scripts/p2s_parallel.py
+
+%post
+        pip install dipy numpy scipy matplotlib seaborn scikit-learn tqdm joblib ipywidgets pyinstrument
+
+%runscript
+        python3 /scripts/denoising_comp.py $@
