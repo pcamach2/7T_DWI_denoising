@@ -22,9 +22,12 @@ SUBJECT = sys.argv[2]
 DATA_DIR = "/datain/bids/sourcedata"
 
 # replace these with CUPS data
-DWI_FNAME = DATA_DIR + '/' + SUBJECT + '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.nii.gz'
-BVAL_FNAME = DATA_DIR + '/' + SUBJECT + '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.bval'
-BVEC_FNAME = DATA_DIR + '/' + SUBJECT + '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.bvec'
+DWI_FNAME = DATA_DIR + '/' + SUBJECT + \
+    '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.nii.gz'
+BVAL_FNAME = DATA_DIR + '/' + SUBJECT + \
+    '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.bval'
+BVEC_FNAME = DATA_DIR + '/' + SUBJECT + \
+    '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.bvec'
 
 # load data
 data, affine = load_nifti(DWI_FNAME)
@@ -72,40 +75,44 @@ fig, axs = plt.subplots(2, 4, figsize=(16, 8),
 fig.subplots_adjust(hspace=0.3, wspace=0.05)
 
 axs[0, 0].imshow(orig.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[0, 0].set_title('Original')
 axs[0, 1].imshow(den_p2s.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[0, 1].set_title('Patch2Self')
 axs[0, 2].imshow(den_nlmeans.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[0, 2].set_title('NLMeans')
 axs[0, 3].imshow(den_lpca.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[0, 3].set_title('LocalPCA')
 axs[1, 1].imshow(den_mppca.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[1, 1].set_title('MPPCA')
 axs[1, 0].imshow(rms_diff_p2s.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[1, 0].set_title('Patch2Self Residuals')
 axs[1, 2].imshow(rms_diff_nlmeans.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[1, 2].set_title('NLMeans Residuals')
 axs[1, 3].imshow(rms_diff_lpca.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[1, 3].set_title('LocalPCA Residuals')
 axs[1, 1].imshow(rms_diff_mppca.T, cmap='gray', interpolation='none',
-                  origin='lower')
+                 origin='lower')
 axs[1, 1].set_title('MPPCA Residuals')
+
+fig.suptitle('Comparison of Denoising Methods')
 
 fig.savefig(OUTPUT_DIR + '/denoised_comparison.png')
 
 print("The result saved in denoised_comparison.png")
 
 # save denoised data
-save_nifti(OUTPUT_DIR + '/denoised_patch2self.nii.gz', denoised_arr_p2s, affine)
-save_nifti(OUTPUT_DIR + '/denoised_nlmeans.nii.gz', denoised_arr_nlmeans, affine)
+save_nifti(OUTPUT_DIR + '/denoised_patch2self.nii.gz',
+           denoised_arr_p2s, affine)
+save_nifti(OUTPUT_DIR + '/denoised_nlmeans.nii.gz',
+           denoised_arr_nlmeans, affine)
 save_nifti(OUTPUT_DIR + '/denoised_lpca.nii.gz', denoised_arr_lpca, affine)
 save_nifti(OUTPUT_DIR + '/denoised_mppca.nii.gz', denoised_arr_mppca, affine)
 
