@@ -21,7 +21,7 @@ click==8.1.7
 comm==0.1.4
 contourpy==1.1.1
 cryptography==41.0.4
-custom-image-builder==1.0.1
+custom-image-builder
 cycler==0.11.0
 Cython==3.0.2
 dataclasses-json==0.6.1
