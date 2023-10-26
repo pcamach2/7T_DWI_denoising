@@ -1,53 +1,54 @@
 # Description: This script compares the denoising methods in DIPY
 # Author: Paul B Camacho
 
-# import libraries
+import sys
 import numpy as np
+import matplotlib.pyplot as plt
 from dipy.data import get_fnames
 from dipy.io.image import load_nifti, save_nifti
-import matplotlib.pyplot as plt
-
-# from dipy.denoise.patch2self import patch2self
 from dipy.denoise.nlmeans import nlmeans
 from dipy.denoise.localpca import localpca
 from dipy.denoise.localpca import mppca
 from dipy.denoise.noise_estimate import estimate_sigma
 from dipy.denoise.pca_noise_estimate import pca_noise_estimate
 from dipy.core.gradients import gradient_table
-import sys
-
-# import the p2s_parallel.py script
-from p2s_parallel import _vol_denoise, _vol_split, _extract_3d_patches, patch2self
+from p2s_parallel import patch2self
 
 # output directory from positional arguments
-output_dir = sys.argv[1]
-subject = sys.argv[2]
-# data directory
-data_dir = "/datain/bids/sourcedata"
-# replace these with CUPS data
-dwi_fname = data_dir + '/' + subject + '/ses-A/dwi/' + subject + '_ses-A_run-1_dwi.nii.gz'
-bval_fname = data_dir + '/' + subject + '/ses-A/dwi/' + subject + '_ses-A_run-1_dwi.bval'
-bvec_fname = data_dir + '/' + subject + '/ses-A/dwi/' + subject + '_ses-A_run-1_dwi.bvec'
-data, affine = load_nifti(dwi_fname)
-bvals = np.loadtxt(bval_fname)
-sigma = estimate_sigma(data)
-gtab = gradient_table(bvals, bvec_fname)
-pca_sigma = pca_noise_estimate(data, gtab)
-denoised_arr_p2s = patch2self(data, bvals, model='ridge',
-                          shift_intensity=True,
-                          clip_negative_vals=False,
-                          b0_threshold=50, verbose=True,
-                          n_jobs=5, alpha=0)
-# denoised_arr_p2s = patch2self(data, bvals, model='ols', shift_intensity=True, patch_radius=2,
-#                           clip_negative_vals=False, b0_threshold=50)
-denoised_arr_nlmeans = nlmeans(data, sigma=sigma, mask=None,
-                            patch_radius=1, block_radius=1, rician=True,
-                            num_threads=8)
-denoised_arr_lpca = localpca(data, sigma=pca_sigma, patch_radius=2,
-                            tau_factor=2.3, pca_method='eig', out_dtype=np.float64)
-denoised_arr_mppca, mppca_sigma = mppca(data, return_sigma=True, patch_radius=2,
-                            out_dtype=np.float64)
+OUTPUT_DIR = sys.argv[1]
+SUBJECT = sys.argv[2]
 
+# data directory
+DATA_DIR = "/datain/bids/sourcedata"
+
+# replace these with CUPS data
+DWI_FNAME = DATA_DIR + '/' + SUBJECT + '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.nii.gz'
+BVAL_FNAME = DATA_DIR + '/' + SUBJECT + '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.bval'
+BVEC_FNAME = DATA_DIR + '/' + SUBJECT + '/ses-A/dwi/' + SUBJECT + '_ses-A_run-1_dwi.bvec'
+
+# load data
+data, affine = load_nifti(DWI_FNAME)
+bvals = np.loadtxt(BVAL_FNAME)
+sigma = estimate_sigma(data)
+gtab = gradient_table(bvals, BVEC_FNAME)
+pca_sigma = pca_noise_estimate(data, gtab)
+
+# denoise data
+denoised_arr_p2s = patch2self(data, bvals, model='ridge',
+                              shift_intensity=True,
+                              clip_negative_vals=False,
+                              b0_threshold=50, verbose=True,
+                              n_jobs=5, alpha=0)
+
+denoised_arr_nlmeans = nlmeans(data, sigma=sigma, mask=None,
+                               patch_radius=1, block_radius=1, rician=True,
+                               num_threads=8)
+
+denoised_arr_lpca = localpca(data, sigma=pca_sigma, patch_radius=2,
+                             tau_factor=2.3, pca_method='eig', out_dtype=np.float64)
+
+denoised_arr_mppca, mppca_sigma = mppca(data, return_sigma=True, patch_radius=2,
+                                        out_dtype=np.float64)
 
 # Gets the center slice and the middle volume of the 4D diffusion data.
 sli = data.shape[2] // 2
@@ -98,19 +99,19 @@ axs[1, 1].imshow(rms_diff_mppca.T, cmap='gray', interpolation='none',
                   origin='lower')
 axs[1, 1].set_title('MPPCA Residuals')
 
-fig.savefig(output_dir + '/denoised_comparison.png')
+fig.savefig(OUTPUT_DIR + '/denoised_comparison.png')
 
 print("The result saved in denoised_comparison.png")
 
-
-save_nifti(output_dir + '/denoised_patch2self.nii.gz', denoised_arr_p2s, affine)
-save_nifti(output_dir + '/denoised_nlmeans.nii.gz', denoised_arr_nlmeans, affine)
-save_nifti(output_dir + '/denoised_lpca.nii.gz', denoised_arr_lpca, affine)
-save_nifti(output_dir + '/denoised_mppca.nii.gz', denoised_arr_mppca, affine)
+# save denoised data
+save_nifti(OUTPUT_DIR + '/denoised_patch2self.nii.gz', denoised_arr_p2s, affine)
+save_nifti(OUTPUT_DIR + '/denoised_nlmeans.nii.gz', denoised_arr_nlmeans, affine)
+save_nifti(OUTPUT_DIR + '/denoised_lpca.nii.gz', denoised_arr_lpca, affine)
+save_nifti(OUTPUT_DIR + '/denoised_mppca.nii.gz', denoised_arr_mppca, affine)
 
 print("Entire denoised data saved in denoised_patch2self.nii.gz")
 
 # Write noise estimates to file
-save_nifti(output_dir + "/sigma.nii.gz", sigma, affine)
-save_nifti(output_dir + "/pca_sigma.nii.gz", pca_sigma, affine)
-save_nifti(output_dir + "/mppca_sigma.nii.gz", mppca_sigma, affine) 
+save_nifti(OUTPUT_DIR + "/sigma.nii.gz", sigma, affine)
+save_nifti(OUTPUT_DIR + "/pca_sigma.nii.gz", pca_sigma, affine)
+save_nifti(OUTPUT_DIR + "/mppca_sigma.nii.gz", mppca_sigma, affine)
