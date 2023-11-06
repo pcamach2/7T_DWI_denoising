@@ -8,7 +8,8 @@ Patch2Self denoising example:
 
 Comparison with NLMEANS, LPCA, and MP-PCA
 
-![sub-CUPS003_patch2self_20_denoised_comparison.png](https://github.com/pcamach2/7T_DWI_denoising/blob/main/sub-CUPS003_patch2self_20_denoised_comparison.png)
+![Figure2](https://github.com/pcamach2/7T_DWI_denoising/assets/49655443/f95cfdc0-3e7b-4f5d-b4a9-6f864e14db73)
+
 
 ## Guide
 
