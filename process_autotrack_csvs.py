@@ -2,6 +2,15 @@ import pandas as pd
 import os
 
 def process_autotrack_csvs(csvs_dir):
+    """
+    Process the DSI Studio Autotrack csv files for each method and save them as separate csv files.
+
+    Args:
+    csvs_dir (str): The path to the directory containing the DSI Studio Autotrack csv files for each method.
+
+    Returns:
+    None
+    """
     # Define the four methods as a list
     methods = ['p2s', 'nlmeans', 'lpca', 'mppca']
 
