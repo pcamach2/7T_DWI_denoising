@@ -48,7 +48,7 @@ globus-compute-endpoint==2.5.0
 globus-compute-sdk==2.2.0
 globus-sdk==3.28.0
 h5py==3.9.0
-idna==3.4
+idna==3.7
 IProgress==0.4
 ipykernel==6.25.2
 ipython==8.15.0
